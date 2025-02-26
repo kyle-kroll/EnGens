@@ -1,0 +1,32 @@
+BootStrap: docker
+From: continuumio/miniconda3
+
+%post
+    export PATH="/opt/conda/bin:$PATH"
+    . /opt/conda/etc/profile.d/conda.sh
+    conda env create -f environment.yml
+    conda activate engens
+    pip install -i https://test.pypi.org/simple/ engens
+    pip install pdb-tools
+    git clone https://github.com/hsidky/hde.git
+    cp hde.patch ./hde/hde.patch
+    cd hde && git apply hde.patch && cd ../
+    pip install ./hde
+    tar -xvf mTM-align.tar.bz2
+    mv mTM-align/src/mTM-align /opt/conda/envs/engens/bin/mTM-align
+    rm mTM-align.tar.bz2
+    conda install -y pdbfixer
+
+%environment
+    . /opt/conda/etc/profile.d/conda.sh
+    export PATH="/opt/conda/envs/engens/bin:$PATH"
+    conda activate engens
+    
+%files
+    environment.yml /environment.yml
+    hde.patch /hde.patch
+    ./dependencies/mTM-align.tar.bz2 /mTM-align.tar.bz2
+
+%labels
+    Author Kyle Kroll
+    Version 1.0
